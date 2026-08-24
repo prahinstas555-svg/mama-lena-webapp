@@ -21,16 +21,29 @@ function App() {
   }, [cart])
 
   useEffect(() => {
+    let tgId = null
+
     if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.ready()
       window.Telegram.WebApp.expand()
       const tgUser = window.Telegram.WebApp.initDataUnsafe?.user
       if (tgUser) {
-        setTelegramId(tgUser.id)
-        checkUser(tgUser.id)
-      } else {
-        setLoading(false)
+        tgId = tgUser.id
       }
+    }
+
+    // Если Telegram не передал ID, проверяем localStorage
+    if (!tgId) {
+      const savedId = localStorage.getItem('telegram_id')
+      if (savedId) {
+        tgId = parseInt(savedId)
+      }
+    }
+
+    if (tgId) {
+      setTelegramId(tgId)
+      localStorage.setItem('telegram_id', tgId.toString())
+      checkUser(tgId)
     } else {
       setLoading(false)
     }
@@ -82,7 +95,8 @@ function App() {
     )
   }
 
-  if (!user && telegramId) {
+  // Показываем регистрацию если нет пользователя
+  if (!user) {
     return <Register telegramId={telegramId} onRegistered={handleRegistered} />
   }
 
