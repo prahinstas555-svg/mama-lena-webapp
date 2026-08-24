@@ -1,13 +1,12 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiUser, FiMenu, FiX } from 'react-icons/fi'
+import { FiUser, FiMenu, FiX, FiHeart } from 'react-icons/fi'
 import './Header.css'
-import { FiHeart } from 'react-icons/fi'
-import { useNavigate } from 'react-router-dom'
 
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const navigate = useNavigate()
 
   return (
     <header className="header">
@@ -37,9 +36,9 @@ function Header() {
           <button className="header-btn" onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <FiX size={20} /> : <FiMenu size={20} />}
           </button>
-          <button className="care-btn" onClick={() => navigate('/care')}>
-  <FiHeart size={20} />
-</button>
+          <button className="header-btn" onClick={() => navigate('/care')}>
+            <FiHeart size={20} />
+          </button>
         </motion.div>
       </div>
 
@@ -67,7 +66,7 @@ function Header() {
             <Link to="/" onClick={() => setMenuOpen(false)}>🏠 Главная</Link>
             <Link to="/profile" onClick={() => setMenuOpen(false)}>👤 Профиль</Link>
             <Link to="/cart" onClick={() => setMenuOpen(false)}>🛒 Корзина</Link>
-            <a href="tel:+79001234567" onClick={() => setMenuOpen(false)}>📞 Служба заботы</a>
+            <Link to="/care" onClick={() => setMenuOpen(false)}>💛 Служба заботы</Link>
           </motion.div>
         )}
       </AnimatePresence>
