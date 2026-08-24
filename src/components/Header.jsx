@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FiUser, FiMenu, FiX } from 'react-icons/fi'
 import './Header.css'
+import { FiHeart } from 'react-icons/fi'
+import { useNavigate } from 'react-router-dom'
 
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -35,6 +37,9 @@ function Header() {
           <button className="header-btn" onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <FiX size={20} /> : <FiMenu size={20} />}
           </button>
+          <button className="care-btn" onClick={() => navigate('/care')}>
+  <FiHeart size={20} />
+</button>
         </motion.div>
       </div>
 
