@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { FiArrowLeft, FiSend, FiStar, FiMessageSquare, FiHeart } from 'react-icons/fi'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { supabase } from '../lib/supabase'
 import './CareService.css'
 
 function CareService({ telegramId, user }) {
@@ -28,21 +29,15 @@ function CareService({ telegramId, user }) {
     const tgId = telegramId || parseInt(localStorage.getItem('telegram_id'))
 
     try {
-      // Отправляем через Supabase
-      const { createClient } = await import('@supabase/supabase-js')
-      const supabase = createClient(
-        import.meta.env.VITE_SUPABASE_URL,
-        import.meta.env.VITE_SUPABASE_ANON_KEY
-      )
-
-      await supabase.table('feedback').insert({
+      const { error } = await supabase.from('feedback').insert({
         telegram_id: tgId,
         category,
         message,
         rating: rating || null,
         user_name: user?.name || 'Аноним',
-        created_at: new Date().toISOString()
       })
+
+      if (error) console.error('Supabase error:', error)
     } catch (err) {
       console.error(err)
     }
