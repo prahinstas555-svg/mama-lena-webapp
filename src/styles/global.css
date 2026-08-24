@@ -1,11 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
 :root {
-  /* Основные цвета */
   --bg-dark: #1a1a1a;
   --bg-card: #ECDAC4;
   --teal: #206A75;
   --teal-light: #2a8a97;
+  --blue-accent: #4A90D9;
   --burgundy: #3F1114;
   --burgundy-light: #681D24;
   --cream: #ECDAC4;
@@ -17,14 +17,16 @@
   --surface: #242424;
   --burgundy-dark: #3F1114;
 
-  /* Типографика */
   --font-heading: 'Playfair Display', serif;
   --font-body: 'Inter', sans-serif;
 
-  /* Размеры */
   --radius: 16px;
   --radius-sm: 10px;
+  --radius-lg: 24px;
   --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.4);
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.12);
 }
 
 * {
@@ -62,4 +64,26 @@ img {
   max-width: 480px;
   margin: 0 auto;
   padding: 0 16px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--teal);
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--teal);
+  color: var(--white);
 }
