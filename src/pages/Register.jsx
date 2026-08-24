@@ -13,14 +13,22 @@ function Register({ telegramId, onRegistered }) {
       setError('Заполните все поля')
       return
     }
+
     setLoading(true)
     setError('')
-    const { data, error: err } = await registerUser(telegramId, name, phone)
+
+    // Если нет telegramId, генерируем временный
+    const tgId = telegramId || Math.floor(Date.now() / 1000)
+
+    const { data, error: err } = await registerUser(tgId, name, phone)
     if (err) {
       setError('Ошибка регистрации. Попробуйте снова.')
       setLoading(false)
       return
     }
+
+    // Сохраняем ID для будущих сессий
+    localStorage.setItem('telegram_id', tgId.toString())
     onRegistered(data[0])
   }
 
@@ -40,9 +48,9 @@ function Register({ telegramId, onRegistered }) {
           onChange={(e) => setName(e.target.value)}
           style={{
             width: '100%', padding: '14px 16px', marginBottom: '12px',
-            borderRadius: 'var(--radius-sm)', border: 'none',
-            background: 'var(--surface)', color: 'var(--text-light)',
-            fontSize: '16px'
+            borderRadius: '12px', border: 'none',
+            background: '#1a2332', color: '#fff',
+            fontSize: '16px', boxSizing: 'border-box'
           }}
         />
         <input
@@ -52,9 +60,9 @@ function Register({ telegramId, onRegistered }) {
           onChange={(e) => setPhone(e.target.value)}
           style={{
             width: '100%', padding: '14px 16px', marginBottom: '20px',
-            borderRadius: 'var(--radius-sm)', border: 'none',
-            background: 'var(--surface)', color: 'var(--text-light)',
-            fontSize: '16px'
+            borderRadius: '12px', border: 'none',
+            background: '#1a2332', color: '#fff',
+            fontSize: '16px', boxSizing: 'border-box'
           }}
         />
         {error && <p style={{ color: '#ff6b6b', marginBottom: '12px' }}>{error}</p>}
@@ -62,9 +70,10 @@ function Register({ telegramId, onRegistered }) {
           type="submit"
           disabled={loading}
           style={{
-            width: '100%', padding: '14px', borderRadius: 'var(--radius-sm)',
-            background: 'var(--teal)', color: 'white', fontSize: '16px',
-            fontWeight: 600, opacity: loading ? 0.7 : 1
+            width: '100%', padding: '14px', borderRadius: '12px',
+            background: '#2dd4bf', color: '#0f172a', fontSize: '16px',
+            fontWeight: 600, border: 'none', cursor: 'pointer',
+            opacity: loading ? 0.7 : 1
           }}
         >
           {loading ? 'Загрузка...' : 'Зарегистрироваться'}
