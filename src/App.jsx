@@ -6,6 +6,7 @@ import Profile from './pages/Profile'
 import Checkout from './pages/Checkout'
 import Register from './pages/Register'
 import { getUser } from './lib/supabase'
+import CareService from './pages/CareService'
 
 function App() {
   const [cart, setCart] = useState(() => {
@@ -102,6 +103,7 @@ function App() {
 
   return (
     <Routes>
+      <Route path="/care" element={<CareService telegramId={telegramId} user={user} />} />
       <Route path="/" element={<Home cart={cart} onAdd={handleAdd} onRemove={handleRemove} />} />
       <Route path="/cart" element={<Cart cart={cart} onAdd={handleAdd} onRemove={handleRemove} onClear={handleClear} />} />
       <Route path="/profile" element={<Profile user={user} telegramId={telegramId} />} />
