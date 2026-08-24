@@ -2,30 +2,59 @@ import { useState } from 'react'
 import { FiArrowLeft, FiCheck } from 'react-icons/fi'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { createOrder } from '../lib/supabase'
 import './Checkout.css'
 
-function Checkout({ cart, onClear }) {
+function Checkout({ cart, onClear, telegramId, user }) {
   const navigate = useNavigate()
-  const [name, setName] = useState('')
-  const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
   const [comment, setComment] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-
-    const orderData = {
-      items: cart,
-      total: totalPrice,
-      customer: { name, phone, address, comment },
-      timestamp: new Date().toISOString()
+    if (!address.trim()) {
+      setError('Укажите адрес доставки')
+      return
     }
 
+    setLoading(true)
+    setError('')
+
+    const tgId = telegramId || parseInt(localStorage.getItem('telegram_id'))
+
+    const items = cart.map(item => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity
+    }))
+
+    const { data, error: err } = await createOrder(tgId, items, totalPrice, address, comment)
+
+    if (err) {
+      setError('Ошибка оформления заказа. Попробуйте снова.')
+      setLoading(false)
+      return
+    }
+
+    // Отправляем данные боту (если доступно)
     if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.sendData(JSON.stringify(orderData))
+      try {
+        window.Telegram.WebApp.sendData(JSON.stringify({
+          order_id: data[0]?.id,
+          items,
+          total: totalPrice,
+          address,
+          comment
+        }))
+      } catch (e) {
+        // sendData может не работать на десктопе — не критично
+      }
     }
 
     setSubmitted(true)
@@ -68,20 +97,18 @@ function Checkout({ cart, onClear }) {
           <label>Имя</label>
           <input
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Ваше имя"
-            required
+            value={user?.name || ''}
+            disabled
+            style={{ opacity: 0.7 }}
           />
         </div>
         <div className="form-group">
           <label>Телефон</label>
           <input
             type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="+7 (999) 123-45-67"
-            required
+            value={user?.phone || ''}
+            disabled
+            style={{ opacity: 0.7 }}
           />
         </div>
         <div className="form-group">
@@ -104,6 +131,8 @@ function Checkout({ cart, onClear }) {
           />
         </div>
 
+        {error && <p style={{ color: '#ff6b6b', fontSize: '14px' }}>{error}</p>}
+
         <div className="checkout-summary">
           <div className="summary-row">
             <span>Сумма заказа</span>
@@ -119,8 +148,8 @@ function Checkout({ cart, onClear }) {
           </div>
         </div>
 
-        <button type="submit" className="submit-order-btn">
-          Подтвердить заказ — {totalPrice} ₽
+        <button type="submit" className="submit-order-btn" disabled={loading}>
+          {loading ? 'Оформляем...' : `Подтвердить заказ — ${totalPrice} ₽`}
         </button>
       </form>
     </div>
