@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FiArrowLeft, FiCheck } from 'react-icons/fi'
+import { FiArrowLeft, FiCheck, FiCreditCard, FiDollarSign } from 'react-icons/fi'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { createOrder } from '../lib/supabase'
@@ -9,6 +9,7 @@ function Checkout({ cart, onClear, telegramId, user }) {
   const navigate = useNavigate()
   const [address, setAddress] = useState('')
   const [comment, setComment] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState('cash')
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -34,7 +35,7 @@ function Checkout({ cart, onClear, telegramId, user }) {
       quantity: item.quantity
     }))
 
-    const { data, error: err } = await createOrder(tgId, items, totalPrice, address, comment)
+    const { data, error: err } = await createOrder(tgId, items, totalPrice, address, comment, paymentMethod)
 
     if (err) {
       setError('Ошибка оформления заказа. Попробуйте снова.')
@@ -42,7 +43,6 @@ function Checkout({ cart, onClear, telegramId, user }) {
       return
     }
 
-    // Отправляем данные боту (если доступно)
     if (window.Telegram?.WebApp) {
       try {
         window.Telegram.WebApp.sendData(JSON.stringify({
@@ -50,11 +50,10 @@ function Checkout({ cart, onClear, telegramId, user }) {
           items,
           total: totalPrice,
           address,
-          comment
+          comment,
+          payment: paymentMethod
         }))
-      } catch (e) {
-        // sendData может не работать на десктопе — не критично
-      }
+      } catch (e) {}
     }
 
     setSubmitted(true)
@@ -77,6 +76,9 @@ function Checkout({ cart, onClear, telegramId, user }) {
           </div>
           <h2>Заказ принят!</h2>
           <p>Мы свяжемся с вами для подтверждения</p>
+          <p className="payment-note">
+            Оплата: {paymentMethod === 'cash' ? '💵 Наличными' : '💳 Картой'}
+          </p>
         </motion.div>
       </div>
     )
@@ -129,6 +131,28 @@ function Checkout({ cart, onClear, telegramId, user }) {
             placeholder="Пожелания к заказу..."
             rows={3}
           />
+        </div>
+
+        <div className="form-group">
+          <label>Способ оплаты</label>
+          <div className="payment-options">
+            <button
+              type="button"
+              className={`payment-option ${paymentMethod === 'cash' ? 'active' : ''}`}
+              onClick={() => setPaymentMethod('cash')}
+            >
+              <FiDollarSign size={20} />
+              <span>Наличные</span>
+            </button>
+            <button
+              type="button"
+              className={`payment-option ${paymentMethod === 'card' ? 'active' : ''}`}
+              onClick={() => setPaymentMethod('card')}
+            >
+              <FiCreditCard size={20} />
+              <span>Картой</span>
+            </button>
+          </div>
         </div>
 
         {error && <p style={{ color: '#ff6b6b', fontSize: '14px' }}>{error}</p>}
