@@ -4,12 +4,17 @@ import Home from './pages/Home'
 import Cart from './pages/Cart'
 import Profile from './pages/Profile'
 import Checkout from './pages/Checkout'
+import Register from './pages/Register'
+import { getUser } from './lib/supabase'
 
 function App() {
   const [cart, setCart] = useState(() => {
     const saved = localStorage.getItem('cart')
     return saved ? JSON.parse(saved) : []
   })
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [telegramId, setTelegramId] = useState(null)
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart))
@@ -19,8 +24,29 @@ function App() {
     if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.ready()
       window.Telegram.WebApp.expand()
+      const tgUser = window.Telegram.WebApp.initDataUnsafe?.user
+      if (tgUser) {
+        setTelegramId(tgUser.id)
+        checkUser(tgUser.id)
+      } else {
+        setLoading(false)
+      }
+    } else {
+      setLoading(false)
     }
   }, [])
+
+  const checkUser = async (tgId) => {
+    const { data } = await getUser(tgId)
+    if (data) {
+      setUser(data)
+    }
+    setLoading(false)
+  }
+
+  const handleRegistered = (userData) => {
+    setUser(userData)
+  }
 
   const handleAdd = (item) => {
     setCart(prev => {
@@ -48,12 +74,24 @@ function App() {
 
   const handleClear = () => setCart([])
 
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <p style={{ color: 'var(--text-muted)' }}>Загрузка...</p>
+      </div>
+    )
+  }
+
+  if (!user && telegramId) {
+    return <Register telegramId={telegramId} onRegistered={handleRegistered} />
+  }
+
   return (
     <Routes>
       <Route path="/" element={<Home cart={cart} onAdd={handleAdd} onRemove={handleRemove} />} />
       <Route path="/cart" element={<Cart cart={cart} onAdd={handleAdd} onRemove={handleRemove} onClear={handleClear} />} />
-      <Route path="/profile" element={<Profile user={{}} orders={[]} />} />
-      <Route path="/checkout" element={<Checkout cart={cart} onClear={handleClear} />} />
+      <Route path="/profile" element={<Profile user={user} telegramId={telegramId} />} />
+      <Route path="/checkout" element={<Checkout cart={cart} onClear={handleClear} telegramId={telegramId} user={user} />} />
     </Routes>
   )
 }
