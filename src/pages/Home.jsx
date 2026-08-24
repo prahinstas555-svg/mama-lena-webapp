@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { motion } from 'framer-motion'
 import Header from '../components/Header'
 import PromoBanner from '../components/PromoBanner'
 import CategoryTabs from '../components/CategoryTabs'
@@ -6,6 +7,15 @@ import FoodCard from '../components/FoodCard'
 import CartButton from '../components/CartButton'
 import { categories, menuItems } from '../data/menu'
 import './Home.css'
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.08, duration: 0.4, ease: 'easeOut' }
+  })
+}
 
 function Home({ cart, onAdd, onRemove }) {
   const [activeCategory, setActiveCategory] = useState('all')
@@ -35,14 +45,21 @@ function Home({ cart, onAdd, onRemove }) {
       <div className="menu-section" id="menu">
         <h2 className="section-title">Меню</h2>
         <div className="food-list">
-          {filteredItems.map(item => (
-            <FoodCard
+          {filteredItems.map((item, index) => (
+            <motion.div
               key={item.id}
-              item={item}
-              quantity={getQuantity(item.id)}
-              onAdd={onAdd}
-              onRemove={onRemove}
-            />
+              custom={index}
+              variants={cardVariants}
+              initial="hidden"
+              animate="visible"
+            >
+              <FoodCard
+                item={item}
+                quantity={getQuantity(item.id)}
+                onAdd={onAdd}
+                onRemove={onRemove}
+              />
+            </motion.div>
           ))}
         </div>
       </div>
