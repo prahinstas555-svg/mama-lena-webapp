@@ -22,10 +22,10 @@ export async function getUser(telegramId) {
   return { data, error }
 }
 
-export async function createOrder(telegramId, items, total, address, comment) {
+export async function createOrder(telegramId, items, total, address, comment, payment) {
   const { data, error } = await supabase
     .from('orders')
-    .insert({ telegram_id: telegramId, items, total, address, comment })
+    .insert({ telegram_id: telegramId, items, total, address, comment, payment })
     .select()
   return { data, error }
 }
