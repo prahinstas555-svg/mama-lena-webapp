@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { createOrder } from '../lib/supabase'
 import './Checkout.css'
+import './CheckoutExtra.css'
 
 function Checkout({ cart, onClear, telegramId, user }) {
   const navigate = useNavigate()
