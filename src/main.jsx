@@ -6,7 +6,7 @@ import './styles/global.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter basename="/mama-lena-webapp">
+    <BrowserRouter basename="/mamalena-bot">
       <App />
     </BrowserRouter>
   </React.StrictMode>
